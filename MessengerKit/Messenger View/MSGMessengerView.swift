@@ -8,9 +8,16 @@
 
 import UIKit
 
+public protocol MSGMessengerViewLayoutProtocol: UIView {
+    var collectionViewContainer: UIView! { get }
+    var inputViewContainer: UIView! { get }
+    func add(_ collectionView: MSGCollectionView)
+    func add(_ inputView: MSGInputView)
+}
+
 /// Internal class used to load the collection view and input view for `MSGMessengerView`.
 /// This view simply contains two containers and is loaded from the `MSGMessengerView` nib.
-class MSGMessengerView: UIView {
+class MSGMessengerView: UIView, MSGMessengerViewLayoutProtocol {
     
     @IBOutlet weak var backgroundView: UIView!
     

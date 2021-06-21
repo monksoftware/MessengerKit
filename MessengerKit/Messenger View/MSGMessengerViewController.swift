@@ -151,7 +151,7 @@ open class MSGMessengerViewController: UIViewController {
     
     private func setupInput() {
         
-        guard let view = view as? MSGMessengerView else {
+        guard let view = view as? MSGMessengerViewLayoutProtocol else {
             fatalError("Root view is not MSGMessengerView!!")
         }
         

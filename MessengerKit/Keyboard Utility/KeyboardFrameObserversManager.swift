@@ -101,32 +101,32 @@ class KeyboardFrameObserversManager : NSObject {
     
     /// The keyboardView aka UIInputSetHostView used to real-time calculate keyboard's position.
     private var keyboardView: UIView? {
-        if _keyboardView == nil {
-            struct Classes {
-                //                static let keyboardWindow = NSClassFromString("UIRemoteKeyboardWindow") as? NSObject.Type // for input view
-                static let textEffectsWindow = NSClassFromString("UITextEffectsWindow") as? NSObject.Type // for input accessory view
-                static let inputSetContainerView = NSClassFromString("UIInputSetContainerView") as? NSObject.Type
-                static let inputSetHostView = NSClassFromString("UIInputSetHostView") as? NSObject.Type
-            }
-            
-            // 1. UIRemoteKeyboardWindow > UIInputSetContainerView > UIInputSetHostView
-            // 2. UITextEffectsWindow    > UIInputSetContainerView > UIInputSetHostView
-            // *  UIRemoteKeyboardWindow will be removed and set to nil in iPad Split View when keyboard is hosting on another app, but UITextEffectsWindow won't
-            
-            for window in UIApplication.shared.windows.reversed() {
-                let windowClass = type(of: window)
-                if windowClass == Classes.textEffectsWindow {
-                    if let containerView = window.subviews.first(where: { type(of: $0) == Classes.inputSetContainerView }),
-                        let hostView = containerView.subviews.first(where: { type(of: $0) == Classes.inputSetHostView }) {
-                        _keyboardView = hostView
-                        break
-                    }
-                }
-            }
-        }
+//        if _keyboardView == nil {
+//            struct Classes {
+//                //                static let keyboardWindow = NSClassFromString("UIRemoteKeyboardWindow") as? NSObject.Type // for input view
+//                static let textEffectsWindow = NSClassFromString("UITextEffectsWindow") as? NSObject.Type // for input accessory view
+//                static let inputSetContainerView = NSClassFromString("UIInputSetContainerView") as? NSObject.Type
+//                static let inputSetHostView = NSClassFromString("UIInputSetHostView") as? NSObject.Type
+//            }
+//
+//            // 1. UIRemoteKeyboardWindow > UIInputSetContainerView > UIInputSetHostView
+//            // 2. UITextEffectsWindow    > UIInputSetContainerView > UIInputSetHostView
+//            // *  UIRemoteKeyboardWindow will be removed and set to nil in iPad Split View when keyboard is hosting on another app, but UITextEffectsWindow won't
+//
+//            for window in UIApplication.shared.windows.reversed() {
+//                let windowClass = type(of: window)
+//                if windowClass == Classes.textEffectsWindow {
+//                    if let containerView = window.subviews.first(where: { type(of: $0) == Classes.inputSetContainerView }),
+//                        let hostView = containerView.subviews.first(where: { type(of: $0) == Classes.inputSetHostView }) {
+//                        _keyboardView = hostView
+//                        break
+//                    }
+//                }
+//            }
+//        }
         return _keyboardView
     }
-    private weak var _keyboardView: UIView?
+    private var _keyboardView: UIView?
     
     @objc private func handleDisplayLink() {
         updateKeyboardFrameForObservers()
@@ -135,12 +135,21 @@ class KeyboardFrameObserversManager : NSObject {
     @objc private func keyboardWillChangeFrame(_ notification: Notification) {
         // endFrame == .zero, means the keyboard's frame is currently freely changed in iPad Undock mode.
         let endFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect ?? .zero
+        if _keyboardView == nil {
+            _keyboardView = UIView(frame: endFrame)
+        }
+        self._keyboardView?.frame = endFrame
         if endFrame != .zero {
             updateKeyboardFrameForObservers(animated: true)
         }
     }
     
-    @objc private func keyboardDidChangeFrame() {
+    @objc private func keyboardDidChangeFrame(_ notification: NSNotification) {
+        let endFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect ?? .zero
+        if _keyboardView == nil {
+            _keyboardView = UIView(frame: endFrame)
+        }
+        self._keyboardView?.frame = endFrame
         updateKeyboardFrameForObservers(forced: true)
     }
 }

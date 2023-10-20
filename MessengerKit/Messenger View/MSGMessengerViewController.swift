@@ -155,9 +155,13 @@ open class MSGMessengerViewController: UIViewController {
             fatalError("Root view is not MSGMessengerView!!")
         }
         
-        view.addLayoutGuide(keyboardLayoutGuide)
-        view.inputViewContainer.bottomAnchor.constraint(equalTo: keyboardLayoutGuide.topAnchor).isActive = true
-    
+        if #available(iOS 15.0, *) {
+            view.keyboardLayoutGuide.topAnchor.constraint(equalTo: view.inputViewContainer.bottomAnchor).isActive = true
+        } else {
+            view.addLayoutGuide(keyboardLayoutGuide)
+            view.inputViewContainer.bottomAnchor.constraint(equalTo: keyboardLayoutGuide.topAnchor).isActive = true
+        }
+
         messageInputView.addTarget(self, action: #selector(inputViewDidChange(inputView:)), for: .valueChanged)
         messageInputView.addTarget(self, action: #selector(inputViewPrimaryActionTriggered(inputView:)), for: .primaryActionTriggered)
     }
@@ -202,7 +206,7 @@ open class MSGMessengerViewController: UIViewController {
     
     /// Sets the users that are currently typing.
     /// Can be overridden for additional control.
-    ///
+    ///x
     /// - Parameter users: The users that are typing.
     open func setUsersTyping(_ users: [MSGUser]) {
         
